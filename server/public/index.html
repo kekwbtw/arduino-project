@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>Arduino - HTML5</title>
+        <link rel="stylesheet" href="./style.css" />
+    </head>
+
+    <body>
+        <nav>
+            <h1>Etch a Sketch Classic</h1>
+        </nav>
+
+        <div id="wrapper">
+            <div id="left"></div>
+            <div id="middle">
+                <div id="top"></div>
+                <canvas id="sketch" width="523" height="346"></canvas>
+                <div id="bottom"></div>
+            </div>
+            <div id="right"></div>
+        </div>
+
+        <button onclick="clearCanvas()" type="button" id="button">Clear</button>
+
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            const socket = io();
+
+            let sketch = document.querySelector("#sketch");
+            let context = sketch.getContext("2d");
+
+            let lastX = -1;
+            let lastY = -1;
+
+            socket.on("arduinoMessage", (data) => {
+                console.log(data);
+                data = process_data(data);
+
+                /* Initial position */
+                if (lastX == -1) {
+                    lastX = data.x;
+                    lastY = data.y;
+                }
+
+                context.moveTo(lastX, lastY);
+                context.lineTo(data.x, data.y);
+
+                lastX = data.x;
+                lastY = data.y;
+
+                context.strokeStyle = "#000"; //line color
+                context.stroke();
+            });
+
+            function process_data(data) {
+                let ret = {
+                    x: 0,
+                    y: 0,
+                };
+
+                let array = data.split(",");
+
+                if (array.length < 2) return ret;
+
+                ret.x = array[0];
+                ret.y = array[1];
+
+                ret = sanitize_size(ret);
+
+                return ret;
+            }
+
+            /* Convert port values to pixel using the canvas size ratio */
+            function sanitize_size(values) {
+                let max_pot = 1024;
+                let max_canvas_x = 523;
+                let max_canvas_y = 346;
+
+                values.x = values.x * (max_canvas_x / max_pot);
+                values.y = values.y * (max_canvas_y / max_pot);
+
+                return values;
+            }
+
+            function clearCanvas() {
+                alert('Clear Canvas');
+            }
+        </script>
+    </body>
+</html>

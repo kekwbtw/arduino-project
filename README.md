@@ -31,3 +31,5 @@ node index.js /port-name/
 ```zsh
 http://localhost:3000
 ```
+
+![Image text](https://github.com/username-projects/arduino-project/blob/main/Arduinp_src/info.jpg)

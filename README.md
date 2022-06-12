@@ -5,6 +5,7 @@
 ```zsh
 git clone https://github.com/username-projects/arduino-project.git
 ```
+or download .zip.
 
 #### Install modules nodejs:
 
